@@ -131,7 +131,7 @@ namespace _22._02._23_HW
             public void Check()
             {
                 check = new Check();
-                string buf = customer.ToString() + $"Count draw: {amount:f2}\nType: " + type.ToString();
+                string buf = customer.ToString() + $"Count draw: {amount:f2}\nType: " + type.ShowType();
                 check.Give_Check(buf);
             }
         }
