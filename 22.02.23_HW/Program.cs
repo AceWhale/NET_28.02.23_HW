@@ -124,9 +124,9 @@ namespace _22._02._23_HW
             }
             public void Add(ICustom customer,double amount) => customer.Add(amount);
             
-            public void Check()
+            public void Check(ICheck check, Customer customer, Type type)
             {
-                
+                check.Print(customer, type);
             }
         }
         class Check_Print : ICheck
