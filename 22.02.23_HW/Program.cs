@@ -3,26 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static _22._02._23_HW.Program;
 
 namespace _22._02._23_HW
 {
     internal class Program
     {
-
-        class Check
+        public interface ICheck
         {
-            public void Give_Check(string buf)
-            {
-                Console.WriteLine("Withdraw a check?\n1. Yes\t2. No");
-                int choose = Convert.ToInt32(Console.ReadLine());
-                if (choose == 1)
-                {
-                    Console.Clear();
-                    Console.WriteLine(buf);
-                }
-            }
+            void Print(Customer customer, Type type);
         }
-        interface Type
+
+        public interface ICustom
+        {
+            void Init();
+            void Add(double amount);
+            void TypeMoney();
+            void DrawType();
+        }
+
+        public interface Type
         {
             double Convert_Money(double money);
             string ShowType();
@@ -52,11 +52,13 @@ namespace _22._02._23_HW
             public string ShowType() { return "GRN"; }
         }
 
-        class Customer
+        public class Customer: ICustom
         {
             public string Name { get; private set; }
             public string Card { get; private set; }
             public double Money { get; private set; }
+            public Type type { get; private set; }
+            public double amount { get; private set; }
             public Customer() { }
             public Customer(string name, string card, int money)
             {
@@ -83,32 +85,15 @@ namespace _22._02._23_HW
                 }
                 Money -= amount;
             }
-            public override string ToString()
+            public void DrawType()
             {
-                return $"Name: {Name}\nCard: {Card}";
+                if (type == null)
+                    type = new GRN();
+                Console.Write("Count: ");
+                double amount = Convert.ToDouble(Console.ReadLine());
+                this.Draw(type.Convert_Money(amount));
             }
-        }
-
-        class Bank
-        {
-            public Customer customer { get; set; }
-            public Type type { get; set; }
-            public Check check { get; set; }
-            private double amount;
-            public Bank() { }
-            public Bank(Customer customer, Type type, Check check)
-            {
-                this.customer = customer;
-                this.type = type;
-                this.check = check;
-            }
-            public void Init()
-            {
-                customer = new Customer();
-                customer.Init();
-            }
-            public void Add(double amount) => customer.Add(amount);
-            public void Draw()
+            public void TypeMoney()
             {
                 Console.Write("Type (1. EUR\t2. USD\t3. GRN): ");
                 int buf = Convert.ToInt32(Console.ReadLine());
@@ -124,24 +109,57 @@ namespace _22._02._23_HW
                         Console.WriteLine("Wrong answer");
                         return;
                 }
-                Console.Write("Count: ");
-                amount = Convert.ToDouble(Console.ReadLine());
-                customer.Draw(type.Convert_Money(amount));
             }
+            public override string ToString()
+            {
+                return $"Name: {Name}\nCard: {Card}";
+            }
+        }
+        
+        class Bank
+        {
+            public void Init(ICustom customer)
+            {
+                customer.Init();
+            }
+            public void Add(ICustom customer,double amount) => customer.Add(amount);
+            
             public void Check()
             {
-                check = new Check();
-                string buf = customer.ToString() + $"Count draw: {amount:f2}\nType: " + type.ShowType();
-                check.Give_Check(buf);
+                
+            }
+        }
+        class Check_Print : ICheck
+        {
+            public void Print(Customer customer, Type type)
+            {
+                Console.WriteLine(customer.ToString() + $"Count draw: {customer.amount:f2}\nType: " + type.ShowType());
+            }
+        }
+        class Check_Mail : ICheck
+        {
+            public void Print(Customer customer, Type type)
+            {
+                Console.WriteLine("Email: ");
+                string buf = Console.ReadLine();
+                Console.WriteLine(customer.ToString() + $"Count draw: {customer.amount:f2}\nType: " + type.ShowType()+
+                    "\nСheck sent to mail: " + buf);
+            }
+        }
+        class Check_SMS : ICheck
+        {
+            public void Print(Customer customer, Type type)
+            {
+                Console.WriteLine("Num: ");
+                string buf = Console.ReadLine();
+                Console.WriteLine(customer.ToString() + $"Count draw: {customer.amount:f2}\nType: " + type.ShowType()+
+                    "\nСheck sent to Num: " + buf);
             }
         }
 
         static void Main(string[] args)
         {
             Bank bank = new Bank();
-            bank.Init();
-            bank.Draw();
-            bank.Check();
         }
     }
 }
